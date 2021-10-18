@@ -9,6 +9,15 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 class Default {
+
+    @GetMapping("/")
+    fun home(
+        @AuthenticationPrincipal principal: OAuth2User?,model: Model): String {
+        if (principal != null)
+            model.addAttribute("name", principal.getAttribute("name"))
+        return "home"
+    }
+
     @GetMapping("/greeting")
     fun greeting(
         @AuthenticationPrincipal principal: OAuth2User,
