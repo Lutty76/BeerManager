@@ -31,8 +31,7 @@ body{
 
     list-style-type: none;
     display: block;
-    background: grey;
-    padding:15px;
+    background: darkgrey;
     margin:0px;
 }
 
@@ -41,9 +40,10 @@ body{
     margin:0px;
     color:black;
     text-decoration: none;
+    padding:15px;
 }
 .sidebar li:hover {
-    background: darkgrey;
+    background: grey;
     color: lightgray;
 }
 .sidebar li:hover a {
@@ -55,14 +55,41 @@ body{
     margin-left: 250px;
     margin-right: 50px;
 }
+
+.main table{
+    background:#F0F0F0;
+    margin: 20px 0px ;
+
+}
+.main table tr td{
+    padding:5px;
+}
+.main table tr:nth-child(even){
+    background:#E0E0E0;
+    border: none;
+
+}
+.main table tr:nth-child(odd){
+    background:#E0E0F0;
+    border: none;
+
+}
+.main table tr:first-child{
+    background:#D0D0F0;
+    border: none;
+
+}
 .footer {
     position: absolute;
     bottom: 0px;
     width: 100%;
-    height: 15px;
+    height: 30px;
     margin:0px;
-    padding: 5px;
     background: black;
     color: lightgray;
 
+}
+.footer>div {
+
+    padding: 5px;
 }

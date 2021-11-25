@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{home :: head(title='Beer Manager - Greeting') }"></head>
+<body>
+
+<header th:replace="~{home :: .header}"></header>
+<aside th:replace="~{home :: .sidebar}"></aside>
+
+<div class="main" th:if="${ user.admin == true}">
+
+  <span th:unless="${#lists.isEmpty(users)}">
+<table>
+    <tr><th>Email</th><th>Nom</th></tr>
+    <tr th:each="oneUser : ${users}">
+            <td><span th:text="${oneUser.email}"> Date </span></td>
+            <td><span th:text="${oneUser.name}"> Nom </span></td>
+        </tr>
+</table>
+
+
+  </span>
+</div>
+<div th:replace="~{home :: .footer}"></div>
+</body>
+
+</html>

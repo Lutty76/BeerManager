@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{home :: head(title='Beer Manager - Greeting') }"></head>
+<body>
+
+<header th:replace="~{home :: .header}"></header>
+<aside th:replace="~{home :: .sidebar}"></aside>
+
+<div class="main">
+<div class="container authenticated">
+  Logged in as: <span id="user" th:text="${user.name}"></span>
+<br />
+  Google account: <span id="user" th:text="${user.email}"></span>
+
+<p>
+  You drink <span id="user" th:text="${nbBeer}"></span> beer !
+</p>
+</div>
+</div>
+<div th:replace="~{home :: .footer}"></div>
+</body>
+
+</html>
