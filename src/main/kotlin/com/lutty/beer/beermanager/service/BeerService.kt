@@ -23,4 +23,7 @@ class BeerService(private val beerRepository: BeerRepository) {
     fun getAllBeerForFut(fut: Fut): List<Beer?>?{
         return beerRepository.findAllByDateLessThanEqualAndDateGreaterThanEqual( fut.end,  fut.open)
     }
+    fun getAllBeerForFutAndUser(fut: Fut, user: User): List<Beer?>?{
+        return beerRepository.findAllByDateLessThanEqualAndDateGreaterThanEqualAndUser( fut.end,  fut.open, user)
+    }
 }

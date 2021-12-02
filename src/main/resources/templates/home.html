@@ -3,49 +3,86 @@
 <head th:fragment="head">
     <meta charset="UTF-8">
     <title th:utext="${title?:'Beer Manager - Home'}"></title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/script.js"></script>
 </head>
 <body>
-<header class="header">
-    <h1>Beer Manager</h1>
-</header>
-<aside class="sidebar">
-    <div th:if="${user == null}">
-        <div class="container unauthenticated">
-            <div>
-                Login: <a href="/oauth2/authorization/google">click here</a>
+<nav class="navbar is-dark ">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <h1 class="title is-1 has-text-white-ter" >Beer Manager</h1>
+        </a>
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample" onclick="toggleBurger()" id="burger">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start"  th:if="${ user != null}">
+            <a class="navbar-item " href="/">
+                Home
+            </a>
+
+            <a class="navbar-item " href="/conso">
+                Consommation
+            </a>
+            <a class="navbar-item " href="/bill">
+                Facture
+            </a>
+
+            <div class="navbar-item has-dropdown is-hoverable" th:if="${ user.admin == true}">
+                <a class="navbar-link ">
+                    Gestion
+                </a>
+
+                <div class="navbar-dropdown"  th:if="${ user.admin == true}">
+                    <a class="navbar-item" href="/users">
+                        Users
+                    </a>
+                    <a class="navbar-item" href="/futs">
+                        Fut
+                    </a>
+                    <hr class="navbar-divider">
+                    <a class="navbar-item">
+                        Report an issue
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a class="mr-4 has-text-white-ter" href="/profil" th:if="${ user != null}"  th:text="${user.name}">
+
+                    </a>
+                    <a class="button is-light" href="/oauth2/authorization/google" th:if="${ user == null}">
+                        Log in
+                    </a>
+                    <a class="button is-light" href="/logout" th:if="${ user != null}">
+                        Log out
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
-    <div th:if="${ user != null}">
-        <div class="container authenticated">
-            <div>
-                <p th:text="'Hello, ' + ${user.name} + '!'" />
-            </div>
-        </div>
-        <ul>
-            <li>  <a href="/profil">Profil</a></li>
-            <li>  <a href="/conso">Consommation</a></li>
-            <li th:if="${ user.admin == true}">  <a href="/futs">Gestion Fut</a></li>
-            <li th:if="${ user.admin == true}">  <a href="/users">Gestion User</a></li>
-            <li>  <a href="/logout">Logout</a></li>
-        </ul>
-
-    </div>
-</aside>
+</nav>
 <div class="main">
-    <h3> Bienvenue à l'accueil</h3>
-<p>
-    <p>Lorem ipsum dolor sit amet. Et consequuntur temporibus <em>Non cumque</em> et nesciunt blanditiis non distinctio repudiandae. Nam nobis repudiandae est repudiandae quibusdam est vero quibusdam sed possimus iste et sint deleniti. </p><p>Et possimus repellat aut excepturi reiciendiset eveniet et rerum assumenda ea neque animi. Quo sint dolor <em>Ea exercitationem qui amet sint sed officia doloribus 33 quam laudantium</em> qui sunt ipsum sed perspiciatis voluptas! Qui ratione atque sed blanditiis tempora et neque praesentium. Sed adipisci accusantium eum odio tempora ad fugit alias et earum harum sit deserunt autem ab nulla impedit. </p><p>Et corporis optio et porro incidunt quo eius reiciendis. Id maxime velit <strong>Ab quis vel internos ducimus sit enim cupiditate</strong> sed odio dolores ut commodi corrupti sit alias numquam. </p><p>Sed maiores voluptatibusAt vitae qui odio error. Sed ipsum alias et nesciunt error qui delectus magni. </p><p>Quo doloribus quia <a href="https://www.loremipzum.com" target="_blank">Ut nemo ut itaque quod</a>! Ut alias doloribus <em>Ea molestiae est dolore similique non ratione fugit</em> qui fuga facilis sed  deserunt. Et deserunt velit quo modi voluptates <strong>Ut laudantium</strong>! </p>
+    <p class="title"> Bienvenue à l'accueil</p>
 
-</p>
+    <p class="title is-4 ">Principe</p>
+    <p>Cette application est la pour comptabilisé les consommations via les QR Code présent sur la tireuse à bière. Un fois le fut terminé vous pourrez acceder au montant que vous devez payer via la page facture.</p>
+    <p>Vous êtes identifié via votre compte google et ce n'est pas lié au compte entreprise.</p>
+
+    <p class="title is-4 mt-4">Paiement</p>
+    <p>Pour le paiement, le plus simple est via lydia via ce <a href="https://lydia-app.com/collect/43542-biere/fr">lien</a></p>
 
 </div>
 
-<div class="footer"><div>
+<footer class="footer has-background-dark"><div class="content has-text-centered has-text-white-ter">
     Made by Kevin Vezier - 2021
 </div>
-</div>
+</footer>
 </body>
 </html>

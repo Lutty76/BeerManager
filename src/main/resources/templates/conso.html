@@ -1,19 +1,18 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{home :: head(title='Beer Manager - Greeting') }"></head>
+<head th:replace="~{home :: head(title='Beer Manager - Consommation') }"></head>
 <body>
 
-<header th:replace="~{home :: .header}"></header>
-<aside th:replace="~{home :: .sidebar}"></aside>
+<header th:replace="~{home :: .navbar}"></header>
 
 <div class="main">
 
-    Last drinked beer :
+   <p class="title"> Drinked beer </p>
     <span th:unless="${#lists.isEmpty(beers)}">
-<table>
+<table class="table  is-striped  is-hoverable is-fullwidth">
     <tr><th>Date</th><th>Quantité</th></tr>
     <tr th:each="beer : ${beers}">
-            <td><span th:text="${beer.date}"> Date </span></td>
+            <td><span th:text="${#temporals.format(beer.date, 'dd/MM/yyyy à HH:mm')}"> Date </span></td>
             <td><span th:text="${beer.size + 'cl'}"> Size </span></td>
         </tr>
 </table>

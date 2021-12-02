@@ -3,8 +3,7 @@
 <head th:replace="~{home :: head(title='Beer Manager - Greeting') }"></head>
 <body>
 
-<header th:replace="~{home :: .header}"></header>
-<aside th:replace="~{home :: .sidebar}"></aside>
+<header th:replace="~{home :: .navbar}"></header>
 
 <p th:text="'Hello, ' + ${name} + '!'" />
 <div class="main">

@@ -1,32 +1,32 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{home :: head(title='Beer Manager - Greeting') }"></head>
+<head th:replace="~{home :: head(title='Beer Manager - Futs') }"></head>
 <body>
 
-<header th:replace="~{home :: .header}"></header>
-<aside th:replace="~{home :: .sidebar}"></aside>
+<header th:replace="~{home :: .navbar}"></header>
 
 <div class="main" th:if="${ user.admin == true}">
 
-  Last Fut:
-  <span th:unless="${#lists.isEmpty(futs)}">
-<table>
-    <tr><th>Date</th><th>Nom</th><th>Prix</th><th>Fini</th></tr>
+    <p class="title" >Add a fut</p>
+    <form method="POST" action="#" th:action="@{/futs}" th:object="${fut}">
+        <label for="nom">Nom</label> <input id="nom" class="input" placeholder="Leffe" type="text" th:field="*{name}" /> <br />
+        <label for="prix">Prix</label> <input id="prix" class="input" placeholder="24.90"   type="text" th:field="*{price}" /><br />
+        <label for="open">Ouvert le </label> <input id="open" class="input" type="datetime-local" th:field="*{open}"/><br />
+        <label for="end">Fini le </label> <input id="end" class="input" type="datetime-local" th:field="*{end}"/><br />
+        <input class="button is-link mt-2" type="submit" value="Ajouter" />
+    </form>
+<p class="title mt-4" >History</p>
+
+  <span th:unless="${#lists.isEmpty(futs)}"  class="mt-4">
+<table class="table  is-striped  is-hoverable is-fullwidth">
+    <tr><th>Date</th><th>Nom</th><th>Prix</th></tr>
     <tr th:each="fut : ${futs}">
-            <td><span th:text="${fut.open}"> Date </span></td>
+            <td><span th:text="${'Du ' +#temporals.format(fut.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(fut.end, 'dd/MM/yyyy à HH:mm')}  "> Date </span></td>
             <td><span th:text="${fut.name}"> Nom </span></td>
-            <td><span th:text="${fut.price}"> Prix </span></td>
-            <td><span th:text="${fut.end}"> End </span></td>
+            <td><span th:text="${#numbers.formatDecimal(fut.price,0,'COMMA',2,'POINT')} + ' €'"> Prix </span></td>
         </tr>
 </table>
   </span>
-      <form method="POST" action="#" th:action="@{/futs}" th:object="${fut}" >
-         <label for="nom">Nom</label> <input id="nom"  type="text" th:field="*{name}" /> <br />
-         <label for="prix">Prix</label> <input id="prix"  type="text" th:field="*{price}" /><br />
-         <label for="open">Ouvert le </label> <input id="open"  type="datetime-local" th:field="*{open}"/><br />
-         <label for="end">Fini le </label> <input id="end" type="datetime-local" th:field="*{end}"/><br />
-            <input type="submit" value="Ajouter" />
-      </form>
 
 </div>
 <div th:replace="~{home :: .footer}"></div>

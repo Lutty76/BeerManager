@@ -4,18 +4,13 @@
 
 <head th:replace="~{home :: head(title='Beer Manager - Login') }"></head>
 <body>
-<header th:replace="~{home :: .header}"></header>
-<aside th:replace="~{home :: .sidebar}"></aside>
+<header th:replace="~{home :: .navbar}"></header>
 <div class="main">
 
 <div th:if="${param.logout}">
   You have been logged out.
 </div>
-<div class="container unauthenticated">
-  <div>
-    With Google: <a href="/oauth2/authorization/google">click here</a>
-  </div>
-</div>
+
 </div>
 <div th:replace="~{home :: .footer}"></div>
 </body>

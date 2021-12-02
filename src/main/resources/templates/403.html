@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{home :: head(title='Beer Manager - Forbidden') }"></head>
+<body>
+
+<header th:replace="~{home :: .navbar}"></header>
+
+<div class="main">
+<p class="title"> 403 Forbidden </p>
+</div>
+<div th:replace="~{home :: .footer}"></div>
+</body>
+
+</html>

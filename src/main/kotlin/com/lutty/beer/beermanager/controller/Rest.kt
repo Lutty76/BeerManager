@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 
 import java.util.*
 
@@ -30,8 +31,14 @@ class Rest(private val userRepository: UserRepository, private val beerRepositor
 
     @GetMapping("/beer/{size}")
     fun addBeer(@AuthenticationPrincipal principal: OAuth2User, @PathVariable size: Int): String {
-        beerRepository.save(Beer(size= size,user= userRepository.findById(principal.getAttribute("email")!!).get() ))
-        return "{\"status\":\"OK\"}"
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
+        val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now().minusMinutes(2),user).isNullOrEmpty().not()
+        if (alreadyPay.not()) {
+            beerRepository.save(Beer(size = size, user = user))
+            return "{\"status\":\"OK\"}"
+        }else{
+            return "{\"status\":\"ERROR\",\"message\":\"Already paid a beer in last 2 minutes\"}"
+        }
     }
     @DeleteMapping("/beer/{date}")
     fun removeBeer(@AuthenticationPrincipal principal: OAuth2User, @PathVariable date: Long): String {

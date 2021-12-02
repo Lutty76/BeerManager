@@ -20,7 +20,8 @@
  - Detailled Fut page -> link on IT
  - Set an ID for different objet, work with date will me painfull
  - calculate price by user
- 
+ - Use Spring security for manage Role  
+
 ## Bonus
  
  - Generete datailled PDF
