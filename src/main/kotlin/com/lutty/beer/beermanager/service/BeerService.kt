@@ -16,8 +16,8 @@ class BeerService(private val beerRepository: BeerRepository) {
     fun countBeerForUser(user: User): Long {
         return beerRepository.countByUser(user)
     }
-    fun getAllBeerForUseFromDate(user: User, date: LocalDateTime): List<Beer?>? {
-        return beerRepository.findByUserAndDate(user, date)
+    fun getAllBeerForUserFromDate(user: User, date: LocalDateTime): List<Beer?>? {
+        return beerRepository.findAllByUserAndDateGreaterThanEqual(user, date)
     }
 
     fun getAllBeerForFut(fut: Fut): List<Beer?>? {

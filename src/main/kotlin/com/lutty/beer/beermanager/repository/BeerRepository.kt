@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 interface BeerRepository : JpaRepository<Beer, Long> {
 
     fun findByUser(user: User): List<Beer?>?
-    fun findByUserAndDate(user: User, date: LocalDateTime): List<Beer?>?
+    fun findAllByUserAndDateGreaterThanEqual(user: User, date: LocalDateTime): List<Beer?>?
     fun findAllByDateLessThanEqualAndDateGreaterThanEqual(end: LocalDateTime, start: LocalDateTime): List<Beer?>?
     fun findAllByDateLessThanEqualAndDateGreaterThanEqualAndUser(end: LocalDateTime, start: LocalDateTime, user: User): List<Beer?>?
     fun findAllByDateGreaterThanEqualAndUser(start: LocalDateTime, user: User): List<Beer?>?

@@ -9,7 +9,7 @@
 - Auth by Google
 - User account
 - User interface 
-
+- Bill
 
 ## Language
 
@@ -17,10 +17,9 @@
  
 
 ## TODO
- - Detailled Fut page -> link on IT
- - Set an ID for different objet, work with date will me painfull
- - calculate price by user
+
  - Use Spring security for manage Role  
+ - Allow to register if bill is payed (gestion Bill) Link Fut iD and User, if 0 drinked else Paid
 
 ## Bonus
  

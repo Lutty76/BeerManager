@@ -1,10 +1,12 @@
 package com.lutty.beer.beermanager.controller
 
+import com.lutty.beer.beermanager.entity.Bill
 import com.lutty.beer.beermanager.entity.Fut
 import com.lutty.beer.beermanager.entity.User
 import com.lutty.beer.beermanager.repository.FutRepository
 import com.lutty.beer.beermanager.repository.UserRepository
 import com.lutty.beer.beermanager.service.BeerService
+import com.lutty.beer.beermanager.service.BillService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Controller
@@ -13,9 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import java.time.LocalDateTime
 
 @Controller
-class Default(private val beerService: BeerService, private val userRepository: UserRepository, private val futRepository: FutRepository) {
+class Default(private val beerService: BeerService, private val billService: BillService, private val userRepository: UserRepository, private val futRepository: FutRepository) {
 
     @GetMapping("/")
     fun home(
@@ -70,6 +73,22 @@ class Default(private val beerService: BeerService, private val userRepository: 
         return "users"
     }
 
+    @GetMapping("/hall")
+    fun hall(
+        @AuthenticationPrincipal principal: OAuth2User,
+        model: Model
+    ): String {
+
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        val users = userRepository.findAll()
+        model.addAttribute("user", user)
+
+        val nbBeerByUserOfMonth = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))!!.map { it!!.size }.sum() }
+        model.addAttribute("date", LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))
+        model.addAttribute("nbBeerByUserOfMonth", nbBeerByUserOfMonth.toList().sortedByDescending { it.second })
+
+        return "shame"
+    }
     @GetMapping("/futs")
     fun futs(
         @AuthenticationPrincipal principal: OAuth2User,
@@ -94,9 +113,42 @@ class Default(private val beerService: BeerService, private val userRepository: 
         if (user!!.admin.not())
             return "403"
         futRepository.save(fut)
+        billService.generateBill(fut)
         model.addAttribute("user", user)
         model.addAttribute("futs", futRepository.findAll())
         return "futs"
+    }
+
+    @GetMapping("/manageBill")
+    fun managebill(
+        @AuthenticationPrincipal principal: OAuth2User,
+        model: Model
+    ): String {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        if (user!!.admin.not())
+            return "403"
+        model.addAttribute("user", user)
+        model.addAttribute("bill", Bill())
+        model.addAttribute("listBills", billService.getAllUnpaidBill())
+        model.addAttribute("valBills", billService.getAllUnpaidBill().associate { bill -> bill to billService.getValueBill(bill.billId) })
+        return "manageBill"
+    }
+
+    @PostMapping("/manageBill")
+    fun paidbill(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @ModelAttribute bill: Bill,
+        model: Model
+    ): String {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        if (user!!.admin.not())
+            return "403"
+        billService.paidBill(bill.billId)
+        model.addAttribute("user", user)
+        model.addAttribute("bill", bill)
+        model.addAttribute("listBills", billService.getAllUnpaidBill())
+        model.addAttribute("valBills", billService.getAllUnpaidBill().associate { bill -> bill to billService.getValueBill(bill.billId) })
+        return "manageBill"
     }
 
     @GetMapping("/profil")
@@ -118,11 +170,13 @@ class Default(private val beerService: BeerService, private val userRepository: 
         val listFut = futRepository.findAll()
         val nbBeerByUserAndByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFutAndUser(fut, user)!!.map { it!!.size }.sum() }
         val nbBeerByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFut(fut)!!.map { it!!.size }.sum() }
+        val isPaidByFut = listFut.associate { fut -> fut to billService.isPaidFut(user,fut) }
 
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("futs", listFut)
         model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
         model.addAttribute("nbBeerFut", nbBeerByFut)
+        model.addAttribute("isPaidByFut", isPaidByFut)
         return "bill"
     }
     @GetMapping("/detailbill/{futId}")

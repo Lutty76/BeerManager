@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{home :: head(title='Beer Manager - Users') }"></head>
+<body>
+
+<header th:replace="~{home :: .navbar}"></header>
+
+<div class="main" >
+
+  <span th:unless="${#lists.isEmpty(nbBeerByUserOfMonth)}">
+<table class="table  is-striped  is-hoverable is-fullwidth">
+    <tr><th>Nom</th><th>Bière bu</th></tr>
+    <tr th:each="oneUser : ${nbBeerByUserOfMonth}">
+            <td><span th:text="${oneUser.first.name}"> Nom </span></td>
+            <td><span th:text="${oneUser.second*1.0 / 100 + ' l'}"> Quantité </span></td>
+        </tr>
+</table>
+
+
+  </span>
+</div>
+<div th:replace="~{home :: .footer}"></div>
+</body>
+
+</html>
