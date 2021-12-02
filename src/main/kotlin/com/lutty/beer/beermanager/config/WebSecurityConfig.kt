@@ -16,7 +16,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
             .authorizeRequests()
-            .antMatchers("/style.css","/bulma/*/*", "/", "/script.js", "/favicon.ico", "/home", "/oauth2/authorization/google").permitAll()
+            .antMatchers("/style.css", "/bulma/*/*", "/", "/script.js", "/favicon.ico", "/home", "/oauth2/authorization/google").permitAll()
             .anyRequest().authenticated()
             .and()
             .formLogin()

@@ -9,7 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
-
 import java.util.*
 
 @RestController
@@ -26,17 +25,17 @@ class Rest(private val userRepository: UserRepository, private val beerRepositor
 
     @GetMapping("/users")
     fun users(): MutableList<User> {
-      return userRepository.findAll()
+        return userRepository.findAll()
     }
 
     @GetMapping("/beer/{size}")
     fun addBeer(@AuthenticationPrincipal principal: OAuth2User, @PathVariable size: Int): String {
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
-        val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now().minusMinutes(2),user).isNullOrEmpty().not()
+        val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now().minusMinutes(2), user).isNullOrEmpty().not()
         if (alreadyPay.not()) {
             beerRepository.save(Beer(size = size, user = user))
             return "{\"status\":\"OK\"}"
-        }else{
+        } else {
             return "{\"status\":\"ERROR\",\"message\":\"Already paid a beer in last 2 minutes\"}"
         }
     }
