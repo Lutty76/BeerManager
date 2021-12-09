@@ -33,8 +33,12 @@ class Rest(private val userRepository: UserRepository, private val beerRepositor
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
         val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now().minusMinutes(2), user).isNullOrEmpty().not()
         if (alreadyPay.not()) {
+            if (size>0 && size <100){
             beerRepository.save(Beer(size = size, user = user))
-            return "{\"status\":\"OK\"}"
+            return "{\"status\":\"OK\"}"}
+            else{
+                return "{\"status\":\"ERROR\",\"message\":\"Wrong size.\"}"
+            }
         } else {
             return "{\"status\":\"ERROR\",\"message\":\"Already paid a beer in last 2 minutes, If is for offer : <a href='/api/beerF/" + size + "'>click here</a>\"}"
         }
