@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head th:fragment="head">
     <meta charset="UTF-8">
-    <title th:utext="${title?:'Beer Manager - Home'}"></title>
+    <title th:utext="${title?:'Beer Manager - Accueil'}"></title>
     <link rel="stylesheet" href="/style.css">
     <script src="/script.js"></script>
 </head>
@@ -21,7 +21,7 @@
     <div id="navbarBasicExample" class="navbar-menu">
         <div class="navbar-start"  th:if="${ user != null}">
             <a class="navbar-item " href="/">
-                Home
+                Accueil
             </a>
 
             <a class="navbar-item " href="/conso">
@@ -31,7 +31,7 @@
                 Facture
             </a>
             <a class="navbar-item " href="/hall">
-                Hall
+                Top Buveur
             </a>
 
 
@@ -45,10 +45,10 @@
                         Users
                     </a>
                     <a class="navbar-item" href="/futs">
-                        Fut
+                        Fûts
                     </a>
                     <a class="navbar-item" href="/manageBill">
-                        Bill
+                        Factures
                     </a>
                     <hr class="navbar-divider">
                     <a class="navbar-item">
@@ -79,7 +79,7 @@
     <p class="title"> Bienvenue à l'accueil</p>
 
     <p class="title is-4 ">Principe</p>
-    <p>Cette application est la pour comptabilisé les consommations via les QR Code présent sur la tireuse à bière. Un fois le fut terminé vous pourrez acceder au montant que vous devez payer via la page facture.</p>
+    <p>Cette application est la pour comptabiliser les consommations via les QR Code présents sur la tireuse à bière. Une fois le fut terminé vous pourrez acceder au montant que vous devez payer via la page facture.</p>
     <p>Vous êtes identifié via votre compte google et ce n'est pas lié au compte entreprise.</p>
 
     <p class="title is-4 mt-4">Paiement</p>

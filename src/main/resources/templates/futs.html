@@ -7,14 +7,14 @@
 
 <div class="main" th:if="${ user.admin == true}">
 
-    <p class="title" >Add a fut</p>
+    <p class="title" >Ajouter un fût</p>
     <form method="POST" action="#" th:action="@{/futs}" th:object="${fut}">
         <label for="nom">Nom</label> <input id="nom" class="input" placeholder="Leffe" type="text" th:field="*{name}" /> <br />
         <label for="prix">Prix</label> <input id="prix" class="input" placeholder="24.90"   type="text" th:field="*{price}" /><br />
         <input class="button is-link mt-2" type="submit" value="Ajouter" />
     </form>
 
-<p class="title mt-4" >History</p>
+<p class="title mt-4" >Historique</p>
 
   <span th:unless="${#lists.isEmpty(futs)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">
@@ -23,7 +23,7 @@
             <td><a th:href="@{'/fut/'+${fut.futId}}" th:text="${fut.futId}"> Date </a></td>
             <td><span th:text="${fut.name}"> Nom </span></td>
             <td><span th:text="${#numbers.formatDecimal(fut.price,0,'COMMA',2,'POINT')} + ' €'"> Prix </span></td>
-            <td><span th:if="${ billeds.get(fut)}"> Billed </span><span th:if="${ ! billeds.get(fut)}"> <a  th:href="@{'/generateBill/'+${fut.futId}}">Unbilled</a> </span></td>
+            <td><span th:if="${ billeds.get(fut)}"> Facturé </span><span th:if="${ ! billeds.get(fut)}"> <a  th:href="@{'/generateBill/'+${fut.futId}}">Créer les factures</a> </span></td>
         </tr>
 </table>
   </span>

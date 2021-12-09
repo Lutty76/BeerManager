@@ -7,7 +7,7 @@
 
 <div class="main">
 
-   <p class="title"> Drinked beer for <span th:text="${fut.name}"></span> branché :
+   <p class="title"> Bière bu sur le vu <span th:text="${fut.name}"></span> branché :
    </p>
        <span th:each="dateFut : ${dateFuts}">
             <p th:text="${'Du ' +#temporals.format(dateFut.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(dateFut.end, 'dd/MM/yyyy à HH:mm')}  "> Date </p>

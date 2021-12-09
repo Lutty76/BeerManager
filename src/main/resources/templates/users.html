@@ -6,7 +6,7 @@
 <header th:replace="~{home :: .navbar}"></header>
 
 <div class="main" th:if="${ user.admin == true}">
-
+<p class="title">Utilisateurs</p>
   <span th:unless="${#lists.isEmpty(users)}">
 <table class="table  is-striped  is-hoverable is-fullwidth">
     <tr><th>Email</th><th>Nom</th></tr>

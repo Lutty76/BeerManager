@@ -1,13 +1,13 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{home :: head(title='Beer Manager - Futs') }"></head>
+<head th:replace="~{home :: head(title='Beer Manager - Fut') }"></head>
 <body>
 
 <header th:replace="~{home :: .navbar}"></header>
 
 <div class="main" th:if="${ user.admin == true }">
 <div th:if="${ !billed}">
-    <p class="title" >Add a date</p>
+    <p class="title" >Ajouter une date</p>
     <form method="POST" action="#" th:action="@{/fut/}+${fut.futId}" th:object="${dateFut}">
         <input id="futId" class="input" type="hidden" name="futId" th:value="${fut.futId}" /> <br />
         <label for="open">Branché le </label> <input id="open" class="input" type="datetime-local" th:field="*{open}"/><br />
@@ -16,7 +16,7 @@
     </form>
     <span th:text="${error}"> Nom </span>
 </div>
-<p class="title mt-4" >History of <span th:text="${fut.name}"> Nom </span></p>
+<p class="title mt-4" >Historique de <span th:text="${fut.name}"> Nom </span></p>
 
   <span th:unless="${#lists.isEmpty(dates)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">

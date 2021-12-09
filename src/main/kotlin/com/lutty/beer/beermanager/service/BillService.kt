@@ -34,7 +34,7 @@ class BillService(private val billRepository: BillRepository, private val userRe
 
     fun getValueBill(billId: Long): Float {
         val bill = billRepository.findOneByBillId(billId)
-        return bill!!.fut.price / beerService.getAllBeerForFut(bill!!.fut)!!.map { it!!.size }.sum() * beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum()
+        return bill!!.fut.price / beerService.getAllBeerForFut(bill.fut)!!.map { it!!.size }.sum() * beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum()
     }
 
     fun isPaidFut(user: User, fut: Fut): Boolean {
