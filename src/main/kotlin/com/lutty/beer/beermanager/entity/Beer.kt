@@ -9,6 +9,6 @@ data class Beer(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val beerId: Long = 0,
     val date: LocalDateTime = LocalDateTime.now(),
-    @ManyToOne @JoinColumn(name = "id") val user: User = User(),
+    @ManyToOne @JoinColumn(name = "userId") val user: User = User(),
     val size: Int = 25
 )

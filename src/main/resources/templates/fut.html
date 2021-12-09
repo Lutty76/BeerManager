@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{home :: head(title='Beer Manager - Futs') }"></head>
+<body>
+
+<header th:replace="~{home :: .navbar}"></header>
+
+<div class="main" th:if="${ user.admin == true }">
+<div th:if="${ !billed}">
+    <p class="title" >Add a date</p>
+    <form method="POST" action="#" th:action="@{/fut/}+${fut.futId}" th:object="${dateFut}">
+        <input id="futId" class="input" type="hidden" name="futId" th:value="${fut.futId}" /> <br />
+        <label for="open">Branché le </label> <input id="open" class="input" type="datetime-local" th:field="*{open}"/><br />
+        <label for="end">Débranché le </label> <input id="end" class="input" type="datetime-local" th:field="*{end}"/><br />
+        <input class="button is-link mt-2" type="submit" value="Ajouter" />
+    </form>
+    <span th:text="${error}"> Nom </span>
+</div>
+<p class="title mt-4" >History of <span th:text="${fut.name}"> Nom </span></p>
+
+  <span th:unless="${#lists.isEmpty(dates)}"  class="mt-4">
+<table class="table  is-striped  is-hoverable is-fullwidth">
+    <tr><th>Date</th></tr>
+    <tr th:each="date : ${dates}">
+            <td><span th:text="${'Du ' +#temporals.format(date.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(date.end, 'dd/MM/yyyy à HH:mm')}  "> Date </span></td>
+
+        </tr>
+</table>
+  </span>
+
+</div>
+<div th:replace="~{home :: .footer}"></div>
+</body>
+
+</html>

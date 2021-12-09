@@ -12,9 +12,9 @@
 
     <span th:unless="${#lists.isEmpty(futs)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">
-    <tr><th>Date</th><th>Fut</th><th>Prix</th><th> Drinked Beer</th><th>Drinked Beer total</th><th>À payer</th><th>Est payé</th></tr>
+    <tr><th>ID</th><th>Fut</th><th>Prix</th><th> Drinked Beer</th><th>Drinked Beer total</th><th>À payer</th><th>Est payé</th></tr>
     <tr th:each="fut : ${futs}" >
-            <td><span th:text="${'Du ' +#temporals.format(fut.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(fut.end, 'dd/MM/yyyy à HH:mm')}  "> Date </span></td>
+            <td><span th:text="${fut.futId}  "> Date </span></td>
             <td><span th:text="${fut.name}"> Nom </span></td>
             <td><span th:text="${#numbers.formatDecimal(fut.price,0,'COMMA',2,'POINT')} + ' €'"> Prix </span></td>
             <td><a th:href="@{'/detailbill/'+${fut.futId}}"><span th:text="${nbBeerUserFut.get(fut) + ' cl'}"> Drinked Beer  </span></a></td>

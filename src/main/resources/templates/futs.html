@@ -11,19 +11,19 @@
     <form method="POST" action="#" th:action="@{/futs}" th:object="${fut}">
         <label for="nom">Nom</label> <input id="nom" class="input" placeholder="Leffe" type="text" th:field="*{name}" /> <br />
         <label for="prix">Prix</label> <input id="prix" class="input" placeholder="24.90"   type="text" th:field="*{price}" /><br />
-        <label for="open">Ouvert le </label> <input id="open" class="input" type="datetime-local" th:field="*{open}"/><br />
-        <label for="end">Fini le </label> <input id="end" class="input" type="datetime-local" th:field="*{end}"/><br />
         <input class="button is-link mt-2" type="submit" value="Ajouter" />
     </form>
+
 <p class="title mt-4" >History</p>
 
   <span th:unless="${#lists.isEmpty(futs)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">
-    <tr><th>Date</th><th>Nom</th><th>Prix</th></tr>
+    <tr><th>id</th><th>Nom</th><th>Prix</th></tr>
     <tr th:each="fut : ${futs}">
-            <td><span th:text="${'Du ' +#temporals.format(fut.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(fut.end, 'dd/MM/yyyy à HH:mm')}  "> Date </span></td>
+            <td><a th:href="@{'/fut/'+${fut.futId}}" th:text="${fut.futId}"> Date </a></td>
             <td><span th:text="${fut.name}"> Nom </span></td>
             <td><span th:text="${#numbers.formatDecimal(fut.price,0,'COMMA',2,'POINT')} + ' €'"> Prix </span></td>
+            <td><span th:if="${ billeds.get(fut)}"> Billed </span><span th:if="${ ! billeds.get(fut)}"> <a  th:href="@{'/generateBill/'+${fut.futId}}">Unbilled</a> </span></td>
         </tr>
 </table>
   </span>

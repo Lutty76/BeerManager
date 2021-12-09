@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository
 interface BillRepository : JpaRepository<Bill, Long> {
 
     fun findOneByBillId(billId: Long): Bill?
-    fun findByUser(user: User): List<Bill?>
     fun findOneByUserAndFut(user: User, fut: Fut): Bill?
     fun findAllByPaid(paid: Boolean): List<Bill>
+    fun findAllByFut(fut: Fut): List<Bill>
+    fun findAllByUser(user: User): List<Bill>
 }

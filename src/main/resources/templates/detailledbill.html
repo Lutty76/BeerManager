@@ -7,7 +7,11 @@
 
 <div class="main">
 
-   <p class="title"> Drinked beer for <span th:text="${fut.name}"></span> consommé <span th:text="${'Du ' +#temporals.format(fut.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(fut.end, 'dd/MM/yyyy à HH:mm')}  "> Date </span></p>
+   <p class="title"> Drinked beer for <span th:text="${fut.name}"></span> branché :
+   </p>
+       <span th:each="dateFut : ${dateFuts}">
+            <p th:text="${'Du ' +#temporals.format(dateFut.open, 'dd/MM/yyyy à HH:mm') + ' au ' + #temporals.format(dateFut.end, 'dd/MM/yyyy à HH:mm')}  "> Date </p>
+        </span>
     <span th:unless="${#lists.isEmpty(beerUserFut)}">
 <table class="table  is-striped  is-hoverable is-fullwidth">
     <tr><th>Date</th><th>Quantité</th></tr>

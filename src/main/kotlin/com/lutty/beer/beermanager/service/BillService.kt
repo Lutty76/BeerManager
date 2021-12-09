@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 class BillService(private val billRepository: BillRepository, private val userRepository: UserRepository, private val beerService: BeerService) {
 
     fun generateBill(fut: Fut): Boolean {
-        val users = userRepository.findAll();
+        val users = userRepository.findAll()
         users.forEach { user ->
             val beerByUserAndFut = beerService.getAllBeerForFutAndUser(fut, user)
             if (beerByUserAndFut != null && beerByUserAndFut.count() != 0) {
@@ -25,22 +25,19 @@ class BillService(private val billRepository: BillRepository, private val userRe
         billRepository.save(Bill(bill!!.billId, bill.user, bill.fut, true))
         return true
     }
-
-    fun getAllBill(): List<Bill>{
-        return billRepository.findAll()
-
+    fun isBillForFut(fut: Fut): Boolean {
+        return !billRepository.findAllByFut(fut).isNullOrEmpty()
     }
-    fun getAllUnpaidBill(): List<Bill>{
+    fun getAllUnpaidBill(): List<Bill> {
         return billRepository.findAllByPaid(false)
-
     }
 
-    fun getValueBill(billId: Long): Float{
+    fun getValueBill(billId: Long): Float {
         val bill = billRepository.findOneByBillId(billId)
-        return bill!!.fut.price / beerService.getAllBeerForFut(bill!!.fut)!!.map{it!!.size}.sum() * beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map{it!!.size}.sum()
+        return bill!!.fut.price / beerService.getAllBeerForFut(bill!!.fut)!!.map { it!!.size }.sum() * beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum()
     }
 
-    fun isPaidFut(user: User, fut :Fut): Boolean{
+    fun isPaidFut(user: User, fut: Fut): Boolean {
         return billRepository.findOneByUserAndFut(user, fut)?.paid ?: true
     }
 }

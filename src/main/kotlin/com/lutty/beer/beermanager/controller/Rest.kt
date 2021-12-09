@@ -36,7 +36,7 @@ class Rest(private val userRepository: UserRepository, private val beerRepositor
             beerRepository.save(Beer(size = size, user = user))
             return "{\"status\":\"OK\"}"
         } else {
-            return "{\"status\":\"ERROR\",\"message\":\"Already paid a beer in last 2 minutes, If is for offer : <a href='/api/beerF/"+size+"'>click here</a>\"}"
+            return "{\"status\":\"ERROR\",\"message\":\"Already paid a beer in last 2 minutes, If is for offer : <a href='/api/beerF/" + size + "'>click here</a>\"}"
         }
     }
     @GetMapping("/beerF/{size}")
@@ -45,7 +45,6 @@ class Rest(private val userRepository: UserRepository, private val beerRepositor
 
         beerRepository.save(Beer(size = size, user = user))
         return "{\"status\":\"OK\"}"
-
     }
     @DeleteMapping("/beer/{date}")
     fun removeBeer(@AuthenticationPrincipal principal: OAuth2User, @PathVariable date: Long): String {

@@ -1,12 +1,15 @@
 package com.lutty.beer.beermanager.controller
 
 import com.lutty.beer.beermanager.entity.Bill
+import com.lutty.beer.beermanager.entity.DateFut
 import com.lutty.beer.beermanager.entity.Fut
 import com.lutty.beer.beermanager.entity.User
+import com.lutty.beer.beermanager.repository.DateFutRepository
 import com.lutty.beer.beermanager.repository.FutRepository
 import com.lutty.beer.beermanager.repository.UserRepository
 import com.lutty.beer.beermanager.service.BeerService
 import com.lutty.beer.beermanager.service.BillService
+import com.lutty.beer.beermanager.service.FutService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Controller
@@ -15,10 +18,18 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.servlet.view.RedirectView
 import java.time.LocalDateTime
 
 @Controller
-class Default(private val beerService: BeerService, private val billService: BillService, private val userRepository: UserRepository, private val futRepository: FutRepository) {
+class Default(
+    private val beerService: BeerService,
+    private val billService: BillService,
+    private val futService: FutService,
+    private val userRepository: UserRepository,
+    private val futRepository: FutRepository,
+    private val dateFutRepository: DateFutRepository
+) {
 
     @GetMapping("/")
     fun home(
@@ -98,8 +109,10 @@ class Default(private val beerService: BeerService, private val billService: Bil
         model.addAttribute("user", user)
         if (user!!.admin.not())
             return "403"
+        val futs = futRepository.findAll()
         model.addAttribute("fut", Fut())
-        model.addAttribute("futs", futRepository.findAll())
+        model.addAttribute("futs", futs)
+        model.addAttribute("billeds", futs.associate { fut -> fut to billService.isBillForFut(fut) })
         return "futs"
     }
 
@@ -114,11 +127,68 @@ class Default(private val beerService: BeerService, private val billService: Bil
             return "403"
         futRepository.save(fut)
         billService.generateBill(fut)
+        val futs = futRepository.findAll()
         model.addAttribute("user", user)
-        model.addAttribute("futs", futRepository.findAll())
+        model.addAttribute("futs", futs)
+        model.addAttribute("billeds", futs.associate { fut -> fut to billService.isBillForFut(fut) })
         return "futs"
     }
+    @GetMapping("/fut/{futId}")
+    fun fut(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @PathVariable futId: Long,
+        model: Model
+    ): String {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        model.addAttribute("user", user)
+        if (user!!.admin.not())
+            return "403"
+        val fut = futRepository.getById(futId)
+        model.addAttribute("fut", fut)
+        model.addAttribute("error", "")
+        model.addAttribute("dateFut", DateFut())
+        model.addAttribute("billed", billService.isBillForFut(fut))
+        model.addAttribute("dates", dateFutRepository.findAllByFut(fut))
+        return "fut"
+    }
 
+    @PostMapping("/fut/{futId}")
+    fun futSubmit(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @PathVariable futId: Long,
+        @ModelAttribute dateFut: DateFut,
+        model: Model
+    ): String {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        val errorMsg: String
+        if (user!!.admin.not())
+            return "403"
+        if (! futService.isAlreadyPluggedFut(dateFut)) {
+            if (dateFut.open > dateFut.end) {
+                errorMsg = "Mets les date dans le bon ordre cretin !"
+            } else {
+                dateFutRepository.save(
+                    DateFut(
+                        fut = futRepository.getById(futId),
+                        open = dateFut.open,
+                        end = dateFut.end
+                    )
+                )
+                errorMsg = "Date added"
+            }
+        } else {
+            errorMsg = "Already a fut plugged at this date"
+        }
+
+        val fut = futRepository.getById(futId)
+        model.addAttribute("fut", fut)
+        model.addAttribute("user", user)
+        model.addAttribute("error", errorMsg)
+        model.addAttribute("dateFut", DateFut())
+        model.addAttribute("billed", billService.isBillForFut(fut))
+        model.addAttribute("dates", dateFutRepository.findAllByFut(fut))
+        return "fut"
+    }
     @GetMapping("/manageBill")
     fun managebill(
         @AuthenticationPrincipal principal: OAuth2User,
@@ -151,6 +221,20 @@ class Default(private val beerService: BeerService, private val billService: Bil
         return "manageBill"
     }
 
+    @GetMapping("/generateBill/{futId}")
+    fun generatebill(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @PathVariable futId: Long,
+        model: Model
+    ): RedirectView {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        if (user!!.admin.not())
+            return RedirectView("/")
+
+        billService.generateBill(futRepository.getById(futId))
+
+        return RedirectView("/manageBill")
+    }
     @GetMapping("/profil")
     fun profil(
         @AuthenticationPrincipal principal: OAuth2User,
@@ -167,10 +251,10 @@ class Default(private val beerService: BeerService, private val billService: Bil
         model: Model
     ): String {
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
-        val listFut = futRepository.findAll()
+        val listFut = futService.findAllBilledFutForUser(user)
         val nbBeerByUserAndByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFutAndUser(fut, user)!!.map { it!!.size }.sum() }
         val nbBeerByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFut(fut)!!.map { it!!.size }.sum() }
-        val isPaidByFut = listFut.associate { fut -> fut to billService.isPaidFut(user,fut) }
+        val isPaidByFut = listFut.associate { fut -> fut to billService.isPaidFut(user, fut) }
 
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("futs", listFut)
@@ -191,6 +275,7 @@ class Default(private val beerService: BeerService, private val billService: Bil
 
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("fut", fut)
+        model.addAttribute("dateFuts", dateFutRepository.findAllByFut(fut))
         model.addAttribute("beerUserFut", beerByUserAndByFut)
         return "detailledbill"
     }
