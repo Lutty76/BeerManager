@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @RestController
@@ -30,8 +31,19 @@ class Rest(private val userRepository: UserRepository, private val beerRepositor
 
     @GetMapping("/beer/{size}")
     fun addBeer(@AuthenticationPrincipal principal: OAuth2User, @PathVariable size: Int): String {
+        if (principal != null) {
+            if (userRepository.findOneByEmail(principal.getAttribute("email")!!) == null)
+                userRepository.save(
+                    User(
+                        email = principal.getAttribute("email")!!,
+                        name = principal.getAttribute("name")!!
+
+                    )
+                )
+        }
+
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
-        val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now().minusMinutes(2), user).isNullOrEmpty().not()
+        val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now(ZoneId.of("Europe/Paris")).minusMinutes(2), user).isNullOrEmpty().not()
         if (alreadyPay.not()) {
             if (size>0 && size <100){
             beerRepository.save(Beer(size = size, user = user))
