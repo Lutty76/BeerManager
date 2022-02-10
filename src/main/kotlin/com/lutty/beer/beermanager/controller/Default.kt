@@ -95,8 +95,16 @@ class Default(
         model.addAttribute("user", user)
 
         val nbBeerByUserOfMonth = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))!!.map { it!!.size }.sum() }
+        val nbBeerByUserOfYear = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, 1, 1, 0, 0))!!.map { it!!.size }.sum() }
+        val nbBeerByUserOfWeek = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, LocalDateTime.now().minusDays(7).dayOfMonth, 0, 0))!!.map { it!!.size }.sum() }
+        val nbBeerByUserOfTotal = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(2022, 1, 1, 0, 0))!!.map { it!!.size }.sum() }
+
+
         model.addAttribute("date", LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))
-        model.addAttribute("nbBeerByUserOfMonth", nbBeerByUserOfMonth.toList().sortedByDescending { it.second })
+        model.addAttribute("nbBeerByUserOfMonth", nbBeerByUserOfMonth.toList().sortedByDescending { it.second }.filterNot { it.second == 0 })
+        model.addAttribute("nbBeerByUserOfYear", nbBeerByUserOfYear.toList().sortedByDescending { it.second }.filterNot { it.second == 0 })
+        model.addAttribute("nbBeerByUserOfWeek", nbBeerByUserOfWeek.toList().sortedByDescending { it.second }.filterNot { it.second == 0 })
+        model.addAttribute("nbBeerByUserOfTotal", nbBeerByUserOfTotal.toList().sortedByDescending { it.second }.filterNot { it.second == 0 })
 
         return "shame"
     }
@@ -197,9 +205,14 @@ class Default(
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
         if (user!!.admin.not())
             return "403"
+        val listBills = billService.getAllUnpaidBill()
+        val nbBeerByUserAndByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum() }
+        val nbBeerByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFut(bill.fut)!!.map { it!!.size }.sum() }
         model.addAttribute("user", user)
         model.addAttribute("bill", Bill())
-        model.addAttribute("listBills", billService.getAllUnpaidBill())
+        model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
+        model.addAttribute("nbBeerFut", nbBeerByFut)
+        model.addAttribute("listBills", listBills)
         model.addAttribute("valBills", billService.getAllUnpaidBill().associate { bill -> bill to billService.getValueBill(bill.billId) })
         return "manageBill"
     }
@@ -214,8 +227,13 @@ class Default(
         if (user!!.admin.not())
             return "403"
         billService.paidBill(bill.billId)
+        val listFut = futService.findAllBilledFutForUser(user)
+        val nbBeerByUserAndByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFutAndUser(fut, user)!!.map { it!!.size }.sum() }
+        val nbBeerByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFut(fut)!!.map { it!!.size }.sum() }
         model.addAttribute("user", user)
         model.addAttribute("bill", bill)
+        model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
+        model.addAttribute("nbBeerFut", nbBeerByFut)
         model.addAttribute("listBills", billService.getAllUnpaidBill())
         model.addAttribute("valBills", billService.getAllUnpaidBill().associate { bill -> bill to billService.getValueBill(bill.billId) })
         return "manageBill"

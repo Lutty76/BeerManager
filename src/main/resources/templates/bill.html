@@ -12,7 +12,7 @@
 
     <span th:unless="${#lists.isEmpty(futs)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">
-    <tr><th>ID</th><th>Fut</th><th>Prix</th><th> Drinked Beer</th><th>Drinked Beer total</th><th>À payer</th><th>Est payé</th></tr>
+    <tr><th>ID</th><th>Fut</th><th>Prix</th><th> Bière bu</th><th>Bière bu au total</th><th>À payer</th><th>Est payé</th></tr>
     <tr th:each="fut : ${futs}" >
             <td><span th:text="${fut.futId}  "> Date </span></td>
             <td><span th:text="${fut.name}"> Nom </span></td>

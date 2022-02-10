@@ -11,11 +11,13 @@
     <p class="title mt-4" >Facture impayé</p>
     <span th:unless="${#lists.isEmpty(listBills)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">
-    <tr><th>id</th><th>Fut</th><th>Nom</th><th>Montant</th><th>A payé ?</th></tr>
+    <tr><th>id</th><th>Fut</th><th>Nom</th><th>Bière bu</th><th>Bière bu au total</th><th>Montant</th><th>A payé ?</th></tr>
     <tr th:each="billit : ${listBills}" >
             <td><a  th:href="@{'/fut/'+${billit.fut.futId}}" th:text="${billit.fut.futId}"> Date </a></td>
             <td><span th:text="${billit.fut.name}"> Nom </span></td>
             <td><span th:text="${billit.user.name}"> à payer </span></td>
+            <td><span th:text="${nbBeerUserFut.get(billit) + ' cl'}"> Drinked Beer  </span></td>
+            <td><span th:text="${nbBeerFut.get(billit) + ' cl'}"> Drinked Beer total </span></td>
             <td><span th:text="${#numbers.formatDecimal(valBills.get(billit),0,'COMMA',2,'POINT') + ' €'}"> à payer  </span></td>
             <td><form  method="POST" action="#" th:action="@{/manageBill}" th:object="${bill}"><input type="hidden" name="billId"  th:value="${billit.billId}"><input type="submit" class="button" value="Oui"></form></td>
         </tr>
