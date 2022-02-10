@@ -1,9 +1,7 @@
 package com.lutty.beer.beermanager.controller
 
-import com.lutty.beer.beermanager.entity.Bill
-import com.lutty.beer.beermanager.entity.DateFut
-import com.lutty.beer.beermanager.entity.Fut
-import com.lutty.beer.beermanager.entity.User
+import com.lutty.beer.beermanager.entity.*
+import com.lutty.beer.beermanager.repository.BeerRepository
 import com.lutty.beer.beermanager.repository.DateFutRepository
 import com.lutty.beer.beermanager.repository.FutRepository
 import com.lutty.beer.beermanager.repository.UserRepository
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.view.RedirectView
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Controller
 class Default(
@@ -28,6 +27,7 @@ class Default(
     private val futService: FutService,
     private val userRepository: UserRepository,
     private val futRepository: FutRepository,
+    private val beerRepository: BeerRepository,
     private val dateFutRepository: DateFutRepository
 ) {
 
@@ -296,6 +296,52 @@ class Default(
         model.addAttribute("dateFuts", dateFutRepository.findAllByFut(fut))
         model.addAttribute("beerUserFut", beerByUserAndByFut)
         return "detailledbill"
+    }
+
+    @GetMapping("/api/beer/{size}")
+    fun addBeer(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @PathVariable size: Int,
+        model: Model
+    ): String {
+        if (principal != null) {
+            if (userRepository.findOneByEmail(principal.getAttribute("email")!!) == null)
+                userRepository.save(
+                    User(
+                        email = principal.getAttribute("email")!!,
+                        name = principal.getAttribute("name")!!
+
+                    )
+                )
+        }
+
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
+        model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
+        model.addAttribute("size", size)
+        val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now(ZoneId.of("Europe/Paris")).minusMinutes(2), user).isNullOrEmpty().not()
+        if (alreadyPay.not()) {
+            if (size>0 && size <100){
+                beerRepository.save(Beer(size = size, user = user))
+                return "fill"
+            }
+            else{
+                return "{\"status\":\"ERROR\",\"message\":\"Wrong size.\"}"
+            }
+        } else {
+            return "notfill"
+        }
+    }
+    @GetMapping("/api/beerF/{size}")
+    fun addBeerForced(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @PathVariable size: Int,
+        model: Model
+    ): String {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
+        model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
+
+        beerRepository.save(Beer(size = size, user = user))
+        return "fill"
     }
     @GetMapping("/login")
     fun login(): String {
