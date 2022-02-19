@@ -1,5 +1,6 @@
 package com.lutty.beer.beermanager.service
 
+import com.lutty.beer.beermanager.entity.Beer
 import com.lutty.beer.beermanager.entity.DateFut
 import com.lutty.beer.beermanager.entity.Fut
 import com.lutty.beer.beermanager.entity.User
@@ -19,5 +20,8 @@ class FutService(private val dateFutRepository: DateFutRepository, private val b
     }
     fun findAllBilledFutForUser(user: User): List<Fut> {
         return billRepository.findAllByUser(user).map { it.fut }
+    }
+    fun getFutForBeer(beer: Beer): Fut? {
+        return dateFutRepository.findAllByEndGreaterThanEqualAndOpenLessThanEqual(beer.date, beer.date)?.fut
     }
 }

@@ -11,4 +11,5 @@ interface DateFutRepository : JpaRepository<DateFut, Long> {
     fun findAllByFut(fut: Fut): List<DateFut>
     fun findAllByOpenLessThanEqualAndOpenGreaterThanEqual(end: LocalDateTime, start: LocalDateTime): List<DateFut>
     fun findAllByEndLessThanEqualAndEndGreaterThanEqual(end: LocalDateTime, start: LocalDateTime): List<DateFut>
+    fun findAllByEndGreaterThanEqualAndOpenLessThanEqual(end: LocalDateTime, start: LocalDateTime): DateFut?
 }

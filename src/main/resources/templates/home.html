@@ -34,7 +34,24 @@
             <a class="navbar-item " href="/hall">
                 Top Buveur
             </a>
+            <div class="navbar-item has-dropdown is-hoverable" >
+                <a class="navbar-link ">
+                    Prendre une bière
+                </a>
 
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/api/beer/50">
+                        50cl
+                    </a>
+                    <a class="navbar-item" href="/api/beer/25">
+                        25cl
+                    </a>
+                    <a class="navbar-item" href="/api/beer/12">
+                        12cl
+                    </a>
+
+                </div>
+            </div>
 
             <div class="navbar-item has-dropdown is-hoverable" th:if="${ user.admin == true}">
                 <a class="navbar-link ">

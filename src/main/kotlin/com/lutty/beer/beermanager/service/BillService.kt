@@ -1,5 +1,6 @@
 package com.lutty.beer.beermanager.service
 
+import com.lutty.beer.beermanager.entity.Beer
 import com.lutty.beer.beermanager.entity.Bill
 import com.lutty.beer.beermanager.entity.Fut
 import com.lutty.beer.beermanager.entity.User
@@ -8,7 +9,7 @@ import com.lutty.beer.beermanager.repository.UserRepository
 import org.springframework.stereotype.Service
 
 @Service
-class BillService(private val billRepository: BillRepository, private val userRepository: UserRepository, private val beerService: BeerService) {
+class BillService(private val billRepository: BillRepository, private val userRepository: UserRepository, private val beerService: BeerService, private val futService: FutService) {
 
     fun generateBill(fut: Fut): Boolean {
         val users = userRepository.findAll()
@@ -39,5 +40,12 @@ class BillService(private val billRepository: BillRepository, private val userRe
 
     fun isPaidFut(user: User, fut: Fut): Boolean {
         return billRepository.findOneByUserAndFut(user, fut)?.paid ?: true
+    }
+    fun isBillOnBeer(beer: Beer): Boolean{
+        val fut = futService.getFutForBeer(beer)
+        return if (fut == null)
+            false
+        else
+            isBillForFut(fut)
     }
 }

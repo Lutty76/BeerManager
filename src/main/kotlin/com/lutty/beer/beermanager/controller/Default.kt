@@ -8,6 +8,8 @@ import com.lutty.beer.beermanager.repository.UserRepository
 import com.lutty.beer.beermanager.service.BeerService
 import com.lutty.beer.beermanager.service.BillService
 import com.lutty.beer.beermanager.service.FutService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Controller
@@ -31,6 +33,7 @@ class Default(
     private val dateFutRepository: DateFutRepository
 ) {
 
+    var logger: Logger = LoggerFactory.getLogger(Default::class.java)
     @GetMapping("/")
     fun home(
         @AuthenticationPrincipal principal: OAuth2User?,
@@ -64,11 +67,29 @@ class Default(
         @AuthenticationPrincipal principal: OAuth2User,
         model: Model
     ): String {
+        val listBeer = beerService.getAllBeerForUser(userRepository.findOneByEmail(principal.getAttribute("email")!!)!!)
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
-        model.addAttribute("beers", beerService.getAllBeerForUser(userRepository.findOneByEmail(principal.getAttribute("email")!!)!!))
+        model.addAttribute("beers", listBeer)
+        model.addAttribute("beer", Beer())
+        model.addAttribute("isBilled", listBeer!!.associate { beer -> beer to billService.isBillOnBeer(beer!!) })
+
         return "conso"
     }
+    @PostMapping("/conso")
+    fun deleteConso(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @ModelAttribute beer: Beer,
+        model: Model
+    ): String {
+        if (beer.beerId != null && beerRepository.findOneByBeerId(beer.beerId).user == userRepository.findOneByEmail(principal.getAttribute("email")!!)!!  )
+            beerRepository.delete(beer)
+        val listBeer = beerService.getAllBeerForUser(userRepository.findOneByEmail(principal.getAttribute("email")!!)!!)
+        model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
+        model.addAttribute("beers", listBeer)
+        model.addAttribute("isBilled", listBeer!!.associate { beer -> beer to billService.isBillOnBeer(beer!!) })
 
+        return "conso"
+    }
     @GetMapping("/users")
     fun users(
         @AuthenticationPrincipal principal: OAuth2User,
@@ -227,9 +248,9 @@ class Default(
         if (user!!.admin.not())
             return "403"
         billService.paidBill(bill.billId)
-        val listFut = futService.findAllBilledFutForUser(user)
-        val nbBeerByUserAndByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFutAndUser(fut, user)!!.map { it!!.size }.sum() }
-        val nbBeerByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFut(fut)!!.map { it!!.size }.sum() }
+        val listBills = billService.getAllUnpaidBill()
+        val nbBeerByUserAndByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum() }
+        val nbBeerByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFut(bill.fut)!!.map { it!!.size }.sum() }
         model.addAttribute("user", user)
         model.addAttribute("bill", bill)
         model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
