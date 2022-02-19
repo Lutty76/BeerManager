@@ -15,7 +15,7 @@ class FutService(private val dateFutRepository: DateFutRepository, private val b
         return dateFutRepository.findAllByFut(fut)
     }
     fun isAlreadyPluggedFut(dateFut: DateFut): Boolean {
-        return !dateFutRepository.findAllByEndLessThanEqualAndEndGreaterThanEqual(dateFut.end, dateFut.open).isNullOrEmpty() ||
+        return !dateFutRepository.findAllByEndLessThanEqualAndEndGreaterThan(dateFut.end, dateFut.open).isNullOrEmpty() ||
             !dateFutRepository.findAllByOpenLessThanEqualAndOpenGreaterThanEqual(dateFut.end, dateFut.open).isNullOrEmpty()
     }
     fun findAllBilledFutForUser(user: User): List<Fut> {

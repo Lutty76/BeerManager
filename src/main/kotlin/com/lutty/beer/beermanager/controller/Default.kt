@@ -175,7 +175,7 @@ class Default(
         val fut = futRepository.getById(futId)
         model.addAttribute("fut", fut)
         model.addAttribute("error", "")
-        model.addAttribute("dateFut", DateFut())
+        model.addAttribute("dateFut", DateFut(open=(dateFutRepository.findMaxDateFut()?:DateFut()).end))
         model.addAttribute("billed", billService.isBillForFut(fut))
         model.addAttribute("dates", dateFutRepository.findAllByFut(fut))
         return "fut"
@@ -214,6 +214,7 @@ class Default(
         model.addAttribute("user", user)
         model.addAttribute("error", errorMsg)
         model.addAttribute("dateFut", DateFut())
+        model.addAttribute("lastDate",dateFutRepository.findMaxDateFut()?:DateFut())
         model.addAttribute("billed", billService.isBillForFut(fut))
         model.addAttribute("dates", dateFutRepository.findAllByFut(fut))
         return "fut"

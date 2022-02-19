@@ -10,8 +10,8 @@
     <p class="title" >Ajouter une date</p>
     <form method="POST" action="#" th:action="@{/fut/}+${fut.futId}" th:object="${dateFut}">
         <input id="futId" class="input" type="hidden" name="futId" th:value="${fut.futId}" /> <br />
-        <label for="open">Branché le </label> <input id="open" class="input" type="datetime-local" th:field="*{open}"/><br />
-        <label for="end">Débranché le </label> <input id="end" class="input" type="datetime-local" th:field="*{end}"/><br />
+        <label for="open">Branché le </label> <input id="open" class="input" type="datetime-local" name="open" th:value="${#temporals.format(dateFut.open, 'yyyy-MM-dd''T''HH:mm')}"/><br />
+        <label for="end">Débranché le </label> <input id="end" class="input" type="datetime-local" name="end" th:value="${#temporals.format(dateFut.end, 'yyyy-MM-dd''T''HH:mm')}"/><br />
         <input class="button is-link mt-2" type="submit" value="Ajouter" />
     </form>
     <span th:text="${error}"> Nom </span>
