@@ -14,7 +14,7 @@
     <tr th:each="beerit : ${beers}">
             <td><span th:text="${#temporals.format(beerit.date, 'dd/MM/yyyy à HH:mm')}"> Date </span></td>
             <td><span th:text="${beerit.size + 'cl'}"> Size </span></td>
-     <td><form  method="POST" action="#" th:action="@{/conso}" th:object="${beer}" onsubmit="return confirm('Delete beer ?');" ><input type="hidden" name="beerId"  th:value="${beerit.beerId}"><input th:if="${! isBilled.get(beerit)}"  type="submit" class="button delete_button" value="Supprimer"></form></td>
+     <td><form  method="POST" action="#" th:action="@{/conso}" th:object="${beer}" onsubmit="return confirm('Supprimer cette bière ?');" ><input type="hidden" name="beerId"  th:value="${beerit.beerId}"><input th:if="${! isBilled.get(beerit)}"  type="submit" class="button delete_button" value="Supprimer"></form></td>
         </tr>
 </table>
   </span>
