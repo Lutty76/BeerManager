@@ -117,7 +117,7 @@ class Default(
 
         val nbBeerByUserOfMonth = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))!!.map { it!!.size }.sum() }
         val nbBeerByUserOfYear = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, 1, 1, 0, 0))!!.map { it!!.size }.sum() }
-        val nbBeerByUserOfWeek = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, LocalDateTime.now().minusDays(7).dayOfMonth, 0, 0))!!.map { it!!.size }.sum() }
+        val nbBeerByUserOfWeek = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().minusDays(7).year, LocalDateTime.now().minusDays(7).month, LocalDateTime.now().minusDays(7).dayOfMonth, 0, 0))!!.map { it!!.size }.sum() }
         val nbBeerByUserOfTotal = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(2022, 1, 1, 0, 0))!!.map { it!!.size }.sum() }
 
 
@@ -295,12 +295,13 @@ class Default(
         val nbBeerByUserAndByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFutAndUser(fut, user)!!.map { it!!.size }.sum() }
         val nbBeerByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFut(fut)!!.map { it!!.size }.sum() }
         val isPaidByFut = listFut.associate { fut -> fut to billService.isPaidFut(user, fut) }
-
+        val totalDu = isPaidByFut.filter{ paid -> !paid.value }.map{paid -> paid.key.price / nbBeerByFut[paid.key]!! * nbBeerByUserAndByFut[paid.key!!]!!}.sum()
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("futs", listFut)
         model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
         model.addAttribute("nbBeerFut", nbBeerByFut)
         model.addAttribute("isPaidByFut", isPaidByFut)
+        model.addAttribute("totalDu", totalDu)
         return "bill"
     }
     @GetMapping("/detailbill/{futId}")

@@ -10,6 +10,7 @@
 
     <p class="title mt-4" >Facture</p>
 
+    <p class="subtitle mt-5" >Total dû : <span th:text="${#numbers.formatDecimal(totalDu,0,'COMMA',2,'POINT') + ' €'}"></span></p>
     <span th:unless="${#lists.isEmpty(futs)}"  class="mt-4">
 <table class="table  is-striped  is-hoverable is-fullwidth">
     <tr><th>ID</th><th>Fut</th><th>Prix</th><th> Bière bue</th><th>Bière bue au total</th><th>À payer</th><th>Est payé</th></tr>
