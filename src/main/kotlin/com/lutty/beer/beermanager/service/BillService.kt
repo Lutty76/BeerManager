@@ -26,22 +26,23 @@ class BillService(private val billRepository: BillRepository, private val userRe
         billRepository.save(Bill(bill!!.billId, bill.user, bill.fut, true))
         return true
     }
-    fun isBillForFut(fut: Fut): Boolean {
-        return !billRepository.findAllByFut(fut).isNullOrEmpty()
+    fun userPaidBills(userId: Long): Boolean {
+        getAllUnpaidBillForUser(userRepository.getById(userId)).map { paidBill(it.billId) }
+        return true
     }
-    fun getAllUnpaidBill(): List<Bill> {
-        return billRepository.findAllByPaid(false)
-    }
+
+    fun isBillForFut(fut: Fut): Boolean = !billRepository.findAllByFut(fut).isNullOrEmpty()
+    fun isPaidFut(user: User, fut: Fut): Boolean = billRepository.findOneByUserAndFut(user, fut)?.paid ?: true
+    fun getAllUnpaidBill(): List<Bill> = billRepository.findAllByPaid(false)
+    fun getAllUnpaidBillForUser(user: User): List<Bill> = billRepository.findAllByUserAndPaid(user, false)
+    fun getSumDuForUser(user: User) = billRepository.findAllByUserAndPaid(user, false).sumOf { getValueBill(it.billId).toDouble() }
 
     fun getValueBill(billId: Long): Float {
         val bill = billRepository.findOneByBillId(billId)
         return bill!!.fut.price / beerService.getAllBeerForFut(bill.fut)!!.map { it!!.size }.sum() * beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum()
     }
 
-    fun isPaidFut(user: User, fut: Fut): Boolean {
-        return billRepository.findOneByUserAndFut(user, fut)?.paid ?: true
-    }
-    fun isBillOnBeer(beer: Beer): Boolean{
+    fun isBillOnBeer(beer: Beer): Boolean {
         val fut = futService.getFutForBeer(beer)
         return if (fut == null)
             false

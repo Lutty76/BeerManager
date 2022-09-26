@@ -71,7 +71,7 @@ class Default(
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("beers", listBeer)
         model.addAttribute("beer", Beer())
-        model.addAttribute("isBilled", listBeer!!.associate { beer -> beer to billService.isBillOnBeer(beer!!) })
+        model.addAttribute("isBilled", listBeer!!.associateWith { beer -> billService.isBillOnBeer(beer!!) })
 
         return "conso"
     }
@@ -81,12 +81,12 @@ class Default(
         @ModelAttribute beer: Beer,
         model: Model
     ): String {
-        if (beer.beerId != null && beerRepository.findOneByBeerId(beer.beerId).user == userRepository.findOneByEmail(principal.getAttribute("email")!!)!!  )
+        if ( beerRepository.findOneByBeerId(beer.beerId).user == userRepository.findOneByEmail(principal.getAttribute("email")!!)!!)
             beerRepository.delete(beer)
         val listBeer = beerService.getAllBeerForUser(userRepository.findOneByEmail(principal.getAttribute("email")!!)!!)
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("beers", listBeer)
-        model.addAttribute("isBilled", listBeer!!.associate { beer -> beer to billService.isBillOnBeer(beer!!) })
+        model.addAttribute("isBilled", listBeer!!.associateWith { billService.isBillOnBeer(it!!) })
 
         return "conso"
     }
@@ -100,11 +100,33 @@ class Default(
         model.addAttribute("user", user)
         if (user!!.admin.not())
             return "403"
-        model.addAttribute("users", userRepository.findAll())
+
+        val users = userRepository.findAll()
+        val usersDu = users.associateWith { billService.getSumDuForUser(it) }
+        model.addAttribute("userPaid", User())
+        model.addAttribute("users", users)
+        model.addAttribute("usersDu", usersDu)
 
         return "users"
     }
-
+    @PostMapping("/users")
+    fun users(
+        @AuthenticationPrincipal principal: OAuth2User,
+        @ModelAttribute userPaid: User,
+        model: Model
+    ): String {
+        val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
+        model.addAttribute("user", user)
+        if (user!!.admin.not())
+            return "403"
+        billService.userPaidBills(userPaid.userId)
+        val users = userRepository.findAll()
+        val usersDu = users.associateWith { billService.getSumDuForUser(it) }
+        model.addAttribute("userPaid", userPaid)
+        model.addAttribute("users", users)
+        model.addAttribute("usersDu", usersDu)
+        return "users"
+    }
     @GetMapping("/hall")
     fun hall(
         @AuthenticationPrincipal principal: OAuth2User,
@@ -115,11 +137,36 @@ class Default(
         val users = userRepository.findAll()
         model.addAttribute("user", user)
 
-        val nbBeerByUserOfMonth = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))!!.map { it!!.size }.sum() }
-        val nbBeerByUserOfYear = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().year, 1, 1, 0, 0))!!.map { it!!.size }.sum() }
-        val nbBeerByUserOfWeek = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(LocalDateTime.now().minusDays(7).year, LocalDateTime.now().minusDays(7).month, LocalDateTime.now().minusDays(7).dayOfMonth, 0, 0))!!.map { it!!.size }.sum() }
-        val nbBeerByUserOfTotal = users.associate { user -> user to beerService.getAllBeerForUserFromDate(user, LocalDateTime.of(2022, 1, 1, 0, 0))!!.map { it!!.size }.sum() }
-
+        val nbBeerByUserOfMonth = users.associateWith { userAss ->
+            beerService.getAllBeerForUserFromDate(
+                userAss,
+                LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0)
+            )!!.sumOf { it!!.size }
+        }
+        val nbBeerByUserOfYear = users.associateWith { userAss ->
+            beerService.getAllBeerForUserFromDate(
+                userAss,
+                LocalDateTime.of(LocalDateTime.now().year, 1, 1, 0, 0)
+            )!!.sumOf { it!!.size }
+        }
+        val nbBeerByUserOfWeek = users.associateWith { userAss ->
+            beerService.getAllBeerForUserFromDate(
+                userAss,
+                LocalDateTime.of(
+                    LocalDateTime.now().minusDays(7).year,
+                    LocalDateTime.now().minusDays(7).month,
+                    LocalDateTime.now().minusDays(7).dayOfMonth,
+                    0,
+                    0
+                )
+            )!!.sumOf { it!!.size }
+        }
+        val nbBeerByUserOfTotal = users.associateWith { userAss ->
+            beerService.getAllBeerForUserFromDate(
+                userAss,
+                LocalDateTime.of(2022, 1, 1, 0, 0)
+            )!!.sumOf { it!!.size }
+        }
 
         model.addAttribute("date", LocalDateTime.of(LocalDateTime.now().year, LocalDateTime.now().month, 1, 0, 0))
         model.addAttribute("nbBeerByUserOfMonth", nbBeerByUserOfMonth.toList().sortedByDescending { it.second }.filterNot { it.second == 0 })
@@ -141,7 +188,7 @@ class Default(
         val futs = futRepository.findAll()
         model.addAttribute("fut", Fut())
         model.addAttribute("futs", futs)
-        model.addAttribute("billeds", futs.associate { fut -> fut to billService.isBillForFut(fut) })
+        model.addAttribute("billeds", futs.associateWith { billService.isBillForFut(it) })
         return "futs"
     }
 
@@ -159,7 +206,7 @@ class Default(
         val futs = futRepository.findAll()
         model.addAttribute("user", user)
         model.addAttribute("futs", futs)
-        model.addAttribute("billeds", futs.associate { fut -> fut to billService.isBillForFut(fut) })
+        model.addAttribute("billeds", futs.associateWith { billService.isBillForFut(it) })
         return "futs"
     }
     @GetMapping("/fut/{futId}")
@@ -175,7 +222,7 @@ class Default(
         val fut = futRepository.getById(futId)
         model.addAttribute("fut", fut)
         model.addAttribute("error", "")
-        model.addAttribute("dateFut", DateFut(open=(dateFutRepository.findMaxDateFut()?:DateFut()).end))
+        model.addAttribute("dateFut", DateFut(open = (dateFutRepository.findMaxDateFut() ?: DateFut()).end))
         model.addAttribute("billed", billService.isBillForFut(fut))
         model.addAttribute("dates", dateFutRepository.findAllByFut(fut))
         return "fut"
@@ -214,7 +261,7 @@ class Default(
         model.addAttribute("user", user)
         model.addAttribute("error", errorMsg)
         model.addAttribute("dateFut", DateFut())
-        model.addAttribute("lastDate",dateFutRepository.findMaxDateFut()?:DateFut())
+        model.addAttribute("lastDate", dateFutRepository.findMaxDateFut() ?: DateFut())
         model.addAttribute("billed", billService.isBillForFut(fut))
         model.addAttribute("dates", dateFutRepository.findAllByFut(fut))
         return "fut"
@@ -227,15 +274,23 @@ class Default(
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)
         if (user!!.admin.not())
             return "403"
-        val listBills = billService.getAllUnpaidBill()
-        val nbBeerByUserAndByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum() }
-        val nbBeerByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFut(bill.fut)!!.map { it!!.size }.sum() }
+        val listBills = billService.getAllUnpaidBill().sortedBy { it.user.name }
+        val nbBeerByUserAndByFut = listBills.associateWith { bill ->
+            beerService.getAllBeerForFutAndUser(
+                bill.fut,
+                bill.user
+            )!!.sumOf { it!!.size }
+        }
+        val nbBeerByFut = listBills.associateWith { bill ->
+            beerService.getAllBeerForFut(bill.fut)!!
+                .sumOf { it!!.size }
+        }
         model.addAttribute("user", user)
         model.addAttribute("bill", Bill())
         model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
         model.addAttribute("nbBeerFut", nbBeerByFut)
         model.addAttribute("listBills", listBills)
-        model.addAttribute("valBills", billService.getAllUnpaidBill().associate { bill -> bill to billService.getValueBill(bill.billId) })
+        model.addAttribute("valBills", billService.getAllUnpaidBill().associateWith { billService.getValueBill(it.billId) })
         return "manageBill"
     }
 
@@ -250,14 +305,25 @@ class Default(
             return "403"
         billService.paidBill(bill.billId)
         val listBills = billService.getAllUnpaidBill()
-        val nbBeerByUserAndByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFutAndUser(bill.fut, bill.user)!!.map { it!!.size }.sum() }
-        val nbBeerByFut = listBills.associate { bill -> bill to beerService.getAllBeerForFut(bill.fut)!!.map { it!!.size }.sum() }
+        val nbBeerByUserAndByFut = listBills.associateWith { billAss ->
+            beerService.getAllBeerForFutAndUser(
+                billAss.fut,
+                billAss.user
+            )!!.sumOf { it!!.size }
+        }
+        val nbBeerByFut = listBills.associateWith { billAss ->
+            beerService.getAllBeerForFut(billAss.fut)!!
+                .sumOf { it!!.size }
+        }
         model.addAttribute("user", user)
         model.addAttribute("bill", bill)
         model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
         model.addAttribute("nbBeerFut", nbBeerByFut)
         model.addAttribute("listBills", billService.getAllUnpaidBill())
-        model.addAttribute("valBills", billService.getAllUnpaidBill().associate { bill -> bill to billService.getValueBill(bill.billId) })
+        model.addAttribute(
+            "valBills",
+            billService.getAllUnpaidBill().associateWith { billService.getValueBill(it.billId) }
+        )
         return "manageBill"
     }
 
@@ -292,10 +358,13 @@ class Default(
     ): String {
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
         val listFut = futService.findAllBilledFutForUser(user)
-        val nbBeerByUserAndByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFutAndUser(fut, user)!!.map { it!!.size }.sum() }
-        val nbBeerByFut = listFut.associate { fut -> fut to beerService.getAllBeerForFut(fut)!!.map { it!!.size }.sum() }
-        val isPaidByFut = listFut.associate { fut -> fut to billService.isPaidFut(user, fut) }
-        val totalDu = isPaidByFut.filter{ paid -> !paid.value }.map{paid -> paid.key.price / nbBeerByFut[paid.key]!! * nbBeerByUserAndByFut[paid.key!!]!!}.sum()
+        val nbBeerByUserAndByFut = listFut.associateWith {
+            beerService.getAllBeerForFutAndUser(it, user)!!
+                .sumOf { it!!.size }
+        }
+        val nbBeerByFut = listFut.associateWith { fut -> beerService.getAllBeerForFut(fut)!!.sumOf { it!!.size } }
+        val isPaidByFut = listFut.associateWith { billService.isPaidFut(user, it) }
+        val totalDu = billService.getSumDuForUser(user)
         model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
         model.addAttribute("futs", listFut)
         model.addAttribute("nbBeerUserFut", nbBeerByUserAndByFut)
@@ -327,15 +396,14 @@ class Default(
         @PathVariable size: Int,
         model: Model
     ): String {
-        if (principal != null) {
-            if (userRepository.findOneByEmail(principal.getAttribute("email")!!) == null)
-                userRepository.save(
-                    User(
-                        email = principal.getAttribute("email")!!,
-                        name = principal.getAttribute("name")!!
+        if (userRepository.findOneByEmail(principal.getAttribute("email")!!) == null) {
+            userRepository.save(
+                User(
+                    email = principal.getAttribute("email")!!,
+                    name = principal.getAttribute("name")!!
 
-                    )
                 )
+            )
         }
 
         val user = userRepository.findOneByEmail(principal.getAttribute("email")!!)!!
@@ -343,11 +411,10 @@ class Default(
         model.addAttribute("size", size)
         val alreadyPay = beerRepository.findAllByDateGreaterThanEqualAndUser(LocalDateTime.now(ZoneId.of("Europe/Paris")).minusMinutes(2), user).isNullOrEmpty().not()
         if (alreadyPay.not()) {
-            if (size>0 && size <100){
+            if (size> 0 && size <100) {
                 beerRepository.save(Beer(size = size, user = user))
                 return "fill"
-            }
-            else{
+            } else {
                 return "{\"status\":\"ERROR\",\"message\":\"Wrong size.\"}"
             }
         } else {

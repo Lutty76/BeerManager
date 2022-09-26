@@ -11,17 +11,10 @@ import org.springframework.stereotype.Service
 @Service
 class FutService(private val dateFutRepository: DateFutRepository, private val billRepository: BillRepository) {
 
-    fun getDatesFut(fut: Fut): List<DateFut> {
-        return dateFutRepository.findAllByFut(fut)
-    }
-    fun isAlreadyPluggedFut(dateFut: DateFut): Boolean {
-        return !dateFutRepository.findAllByEndLessThanEqualAndEndGreaterThan(dateFut.end, dateFut.open).isNullOrEmpty() ||
+    fun getDatesFut(fut: Fut): List<DateFut> = dateFutRepository.findAllByFut(fut)
+    fun findAllBilledFutForUser(user: User): List<Fut> = billRepository.findAllByUser(user).map { it.fut }
+    fun getFutForBeer(beer: Beer): Fut? = dateFutRepository.findAllByEndGreaterThanEqualAndOpenLessThanEqual(beer.date, beer.date)?.fut
+    fun isAlreadyPluggedFut(dateFut: DateFut): Boolean =
+        !dateFutRepository.findAllByEndLessThanEqualAndEndGreaterThan(dateFut.end, dateFut.open).isNullOrEmpty() ||
             !dateFutRepository.findAllByOpenLessThanEqualAndOpenGreaterThanEqual(dateFut.end, dateFut.open).isNullOrEmpty()
-    }
-    fun findAllBilledFutForUser(user: User): List<Fut> {
-        return billRepository.findAllByUser(user).map { it.fut }
-    }
-    fun getFutForBeer(beer: Beer): Fut? {
-        return dateFutRepository.findAllByEndGreaterThanEqualAndOpenLessThanEqual(beer.date, beer.date)?.fut
-    }
 }

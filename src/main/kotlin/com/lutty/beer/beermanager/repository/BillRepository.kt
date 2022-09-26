@@ -14,4 +14,5 @@ interface BillRepository : JpaRepository<Bill, Long> {
     fun findAllByPaid(paid: Boolean): List<Bill>
     fun findAllByFut(fut: Fut): List<Bill>
     fun findAllByUser(user: User): List<Bill>
+    fun findAllByUserAndPaid(user: User, paid: Boolean): List<Bill>
 }

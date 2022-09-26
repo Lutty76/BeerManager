@@ -9,10 +9,14 @@
 <p class="title">Utilisateurs</p>
   <span th:unless="${#lists.isEmpty(users)}">
 <table class="table  is-striped  is-hoverable is-fullwidth">
-    <tr><th>Email</th><th>Nom</th></tr>
+    <tr><th>id</th><th>Email</th><th>Nom</th><th>Du</th><th>A Payé ?</th></tr>
     <tr th:each="oneUser : ${users}">
+            <td><span th:text="${oneUser.userId}"> ID </span></td>
             <td><span th:text="${oneUser.email}"> Date </span></td>
             <td><span th:text="${oneUser.name}"> Nom </span></td>
+            <td><span th:text="${#numbers.formatDecimal(usersDu.get(oneUser),1,'COMMA',2,'POINT') + ' €'}"> Du </span></td>
+            <td><form  method="POST" action="#" th:if="${usersDu.get(oneUser)!=0}" th:action="@{/users}" th:object="${userPaid}"><input type="hidden" name="userId"  th:value="${oneUser.userId}"><input type="submit" class="button" value="Oui"></form></td>
+
         </tr>
 </table>
 

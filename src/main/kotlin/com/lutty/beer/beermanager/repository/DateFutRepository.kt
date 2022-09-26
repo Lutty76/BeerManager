@@ -14,6 +14,6 @@ interface DateFutRepository : JpaRepository<DateFut, Long> {
     fun findAllByEndLessThanEqualAndEndGreaterThan(end: LocalDateTime, start: LocalDateTime): List<DateFut>
     fun findAllByEndGreaterThanEqualAndOpenLessThanEqual(end: LocalDateTime, start: LocalDateTime): DateFut?
 
-    @Query(value = "SELECT * FROM date_fut ORDER BY end DESC limit 1 ",  nativeQuery = true)
+    @Query(value = "SELECT * FROM date_fut ORDER BY end DESC limit 1 ", nativeQuery = true)
     fun findMaxDateFut(): DateFut?
 }
