@@ -10,6 +10,7 @@ import com.lutty.beer.beermanager.service.BillService
 import com.lutty.beer.beermanager.service.FutService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Controller
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.view.RedirectView
 import java.time.LocalDateTime
 import java.time.ZoneId
+
 
 @Controller
 class Default(
@@ -34,6 +36,10 @@ class Default(
 ) {
 
     var logger: Logger = LoggerFactory.getLogger(Default::class.java)
+
+    @Value("\${LYDIA_URL}")
+    private val lydia: String? = null
+
     @GetMapping("/")
     fun home(
         @AuthenticationPrincipal principal: OAuth2User?,
@@ -50,7 +56,12 @@ class Default(
                 )
 
             model.addAttribute("user", userRepository.findOneByEmail(principal.getAttribute("email")!!))
+
+
         }
+
+        model.addAttribute("lydia", lydia)
+
         return "home"
     }
 
@@ -371,6 +382,7 @@ class Default(
         model.addAttribute("nbBeerFut", nbBeerByFut)
         model.addAttribute("isPaidByFut", isPaidByFut)
         model.addAttribute("totalDu", totalDu)
+        model.addAttribute("lydia", lydia)
         return "bill"
     }
     @GetMapping("/detailbill/{futId}")

@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.lutty.beer"
-version = "0.1.2-SNAPSHOT"
+version = "0.1.3-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_18
 
 buildscript {
